@@ -1,0 +1,160 @@
+var buzzer = require("@amperka/buzzer").connect(P5);
+var button = require("@amperka/button").connect(P3);
+var led    = require("@amperka/led").connect(P1);
+
+var init = 0.1;
+
+var morse_code = {
+  "0": "-----",
+  "1": ".----",
+  "2": "..---",
+  "3": "...--",
+  "4": "....-",
+  "5": ".....",
+  "6": "-....",
+  "7": "--...",
+  "8": "---..",
+  "9": "----.",
+  "a": ".-",
+  "b": "-...",
+  "c": "-.-.",
+  "d": "-..",
+  "e": ".",
+  "f": "..-.",
+  "g": "--.",
+  "h": "....",
+  "i": "..",
+  "j": ".---",
+  "k": "-.-",
+  "l": ".-..",
+  "m": "--",
+  "n": "-.",
+  "o": "---",
+  "p": ".--.",
+  "q": "--.-",
+  "r": ".-.",
+  "s": "...",
+  "t": "-",
+  "u": "..-",
+  "v": "...-",
+  "w": ".--",
+  "x": "-..-",
+  "y": "-.--",
+  "z": "--..",
+  ".": ".-.-.-",
+  ",": "--..--",
+  "?": "..--..",
+  "!": "-.-.--",
+  "-": "-....-",
+  "/": "-..-.",
+  "@": ".--.-.",
+  "(": "-.--.",
+  ")": "-.--.-"
+};
+
+
+Morse = function(){};
+
+Morse.prototype.convert = function(char){
+  myChar = morse_code[char];
+  console.log("From Convert");
+  console.log("MyChar is ", myChar);
+  k = 0;
+  for (let ch of myChar) {
+    k += 1;
+    console.log("Symbol is ", ch);
+    if (ch == '.') {
+      console.log('this is point');
+      setTimeout(this.point, 1100 * k);
+    } else { console.log('this is DASH'); setTimeout(this.dash, 1100 * k);}
+  }
+};
+
+Morse.prototype.read = function(string){
+  n  = 0;
+  for (let char of string) {
+    console.log('Char is ', char);
+    setTimeout(() => this.convert(char), (2000 * n));
+    n += 1;
+  }
+};
+
+Morse.prototype.point = function(){
+  console.log('POINT START');
+  led.blink(0.5);
+  buzzer.beep(0.5);
+  //this.fadeTo(1);
+  //this.stopIt(1);
+ 
+};
+
+Morse.prototype.dash = function(){
+  console.log('DASH START');
+  led.blink(1);
+  buzzer.beep(1);
+  //this.fadeTo(2);
+  //this.stopIt(1);
+};
+
+
+Morse.prototype.fadeTo = function(time_count) {
+  var n = 0;
+  var ivalID = setInterval(function() {
+      led.turnOn();
+      buzzer.turnOn();
+    if (n++ >= time_count) {
+      clearInterval(ivalID);
+    }
+  }, 1000 * time_count);
+};
+
+Morse.prototype.start = function(time_count) {
+  digitalWrite(P1, 1);
+  var istartID = setTimeout(function() {
+    digitalWrite(P1, 0);
+  }, 1000 * time_count);
+};
+
+Morse.prototype.stopIt = function(time_count) {
+  var n = 0;
+  var ivalaID = setInterval(function() {
+      led.turnOff();
+      buzzer.turnOff();
+    if (n++ >= time_count) {
+      clearInterval(ivalaID);
+    }
+  }, 1000 * time_count);
+};
+
+var morse = new Morse();
+
+
+button.on('press', function() {
+  console.log('press');
+  buzzer.turnOn();
+  led.turnOn();
+  
+});
+
+
+button.on('release', function() {
+  console.log('release');
+  buzzer.turnOff();
+  led.turnOff();
+});
+
+
+const p = new Promise(function(resolve, reject) {
+  morse.start(1);
+  console.log('im start');
+  setTimeout(resolve, 1500);
+  setTimeout(reject, 2000);
+});
+//p.then(function() {
+//    console.log('resolved');
+//}).catch(function() {
+//    console.log('rejected');
+//});
+
+
+//p.then(() => {morse.start(1); console.log('im tooo')})

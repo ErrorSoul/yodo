@@ -1,0 +1,77 @@
+var buzzer = require("@amperka/buzzer").connect(P5);
+var button = require("@amperka/button")
+                .connect(P3,{holdTime: 0.4});
+var led    = require("@amperka/led").connect(P1);
+
+
+
+MyLed = function() {
+  this._counter = null;
+  this.initLight = 0.1;
+  this.count = 0;
+};
+
+MyLed.prototype.init = function() {
+  console.log("I m Start");
+  this.initLight = 0.1;
+  console.log("this.initLight", this.initLight);
+  led.brightness(this.initLight);
+  clearTimeout(this._counter);
+  this.count = 0;
+};
+
+MyLed.prototype.increment = function() {
+  this.count += 1;
+  console.log("count is ", this.count);
+};
+
+MyLed.prototype.brightness = function(value) {
+  this.initLight = value;
+  console.log("this.initLightSetter is ", this.initLight);
+};
+
+MyLed.prototype.getCount = function() {
+  return this.count;
+};
+
+MyLed.prototype.startInterval = function() {
+    myled._counter = setInterval(function() {
+        x = (myled.getCount() % 10);
+        myled.brightness('0.' + x);
+        if(x == '9') {
+          led.brightness(myled.initLight);
+          led.blink(0.3, 0.3);
+        }else {
+          led.brightness(myled.initLight);
+          myled.increment();
+        }
+    }, 100);
+};
+
+
+var myled = new MyLed();
+myled.init();
+
+
+button.on('press', function(){
+  console.log('press');
+  buzzer.turnOn();
+  led.turnOn();
+});
+
+
+button.on('release', function() {
+  console.log('release');
+  buzzer.turnOff();
+  myled.init();
+  led.turnOff();
+});
+
+button.on('hold', function() {
+  console.log('hold');
+  console.log('this button', this);
+  myled.startInterval();
+});
+
+
+

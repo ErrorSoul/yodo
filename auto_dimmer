@@ -1,0 +1,14 @@
+var sensor = require("@amperka/light-sensor").connect(A2);
+var led    = require("@amperka/led").connect(P1);
+
+
+led.brightness(0.1);
+led.turnOn();
+
+setInterval(() => {
+  let luxes = sensor.read('lx'); 
+  let level = 1 - (luxes / 50);
+  console.log("sensor is ", luxes);
+  console.log("level is ", level);
+  led.brightness(level);
+}, 50);

@@ -1,0 +1,14 @@
+var pot = require("@amperka/pot").connect(A0);
+var led    = require("@amperka/led").connect(P1);
+
+
+led.brightness(0.1);
+led.turnOn();
+
+function updateBrightness(){
+  let val = pot.read();
+  console.log("Pot is ", val);
+  led.brightness(val);
+}
+
+setInterval(updateBrightness,10);

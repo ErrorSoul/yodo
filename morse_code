@@ -1,0 +1,120 @@
+var buzzer = require("@amperka/buzzer").connect(P5);
+var button = require("@amperka/button").connect(P3);
+var led    = require("@amperka/led").connect(P1);
+
+var init = 0.1;
+
+var morse_code = {
+  "0": "-----",
+  "1": ".----",
+  "2": "..---",
+  "3": "...--",
+  "4": "....-",
+  "5": ".....",
+  "6": "-....",
+  "7": "--...",
+  "8": "---..",
+  "9": "----.",
+  "a": ".-",
+  "b": "-...",
+  "c": "-.-.",
+  "d": "-..",
+  "e": ".",
+  "f": "..-.",
+  "g": "--.",
+  "h": "....",
+  "i": "..",
+  "j": ".---",
+  "k": "-.-",
+  "l": ".-..",
+  "m": "--",
+  "n": "-.",
+  "o": "---",
+  "p": ".--.",
+  "q": "--.-",
+  "r": ".-.",
+  "s": "...",
+  "t": "-",
+  "u": "..-",
+  "v": "...-",
+  "w": ".--",
+  "x": "-..-",
+  "y": "-.--",
+  "z": "--..",
+  ".": ".-.-.-",
+  ",": "--..--",
+  "?": "..--..",
+  "!": "-.-.--",
+  "-": "-....-",
+  "/": "-..-.",
+  "@": ".--.-.",
+  "(": "-.--.",
+  ")": "-.--.-"
+};
+
+
+Morse = function(){
+	this.char_table = {
+		"#": 0.4,
+		"-": 0.6,
+		".": 0.2,
+        "&": 0.8,
+	};
+};
+
+
+Morse.prototype.read = function(string){
+	let preMorseCode = string.split('').map((c) => morse_code[c].split('').join('#')).join('&');
+     return this.red(preMorseCode + '&');
+};
+
+
+Morse.prototype.red = function(lists){
+    return lists.split('').reduce((chain,currentChar) => {
+        return chain.then(_ => this.readChar(currentChar));
+    },Promise.resolve());
+};
+
+
+Morse.prototype.readChar = function(char){
+  return new Promise(resolve => {
+      console.log(`Char is   ${char}`);
+      let onOff = (char == '#' || char == '&') ? 0 : 1;
+      console.log(`onOff is   ${onOff}`);
+	  digitalWrite(P1, onOff);
+      analogWrite(P5, (0.4 * onOff), {freq: 1400});
+    setTimeout(() => {
+      console.log(`downloaded ${char} in ${char}ms`);
+      resolve();
+    }, 500 * this.char_table[char]);
+  });
+};
+
+
+
+
+
+
+var morse = new Morse();
+
+
+button.on('press', function() {
+  console.log('press');
+  buzzer.turnOn();
+  led.turnOn();
+  
+});
+
+
+button.on('release', function() {
+  console.log('release');
+  buzzer.turnOff();
+  led.turnOff();
+});
+
+
+const delay = function(ms) {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, ms);
+  });
+};

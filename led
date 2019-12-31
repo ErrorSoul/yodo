@@ -1,0 +1,17 @@
+var led = require("@amperka/led").connect(P1);
+var button = require("@amperka/button").connect(P8);
+
+var x  = 0;
+function buttonHandler(){
+  
+  console.log(x, 'Simple X');
+  x += 1;
+  console.log(x , 'X + 1');
+  la = '0.' + (x % 10);
+  l = la * 0.6803398875;
+  console.log('L is', l);
+  led.blink(la, l);
+  
+}
+
+button.on('press', buttonHandler);
